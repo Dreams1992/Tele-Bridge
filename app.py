@@ -22,7 +22,7 @@ def webhook():
     msg = f"🚀 MOGWAI ALERTE\nSymbool: {symbol}\nStatus: {action}"
     
     # De link die in je browser werkte
-    url = f"https://telegram.org{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={msg}"
+    url = f"https://api.telegram.org{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={msg}"
     requests.get(url)
     
     return "OK", 200
