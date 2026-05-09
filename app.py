@@ -8,29 +8,26 @@ app = Flask(__name__)
 TOKEN = "8779369461:AAHbUNmOoWReG8LS8rF7TSWt6mn1fNrZYLk"
 CHAT_ID = "6644788112"
 
-# DIT IS DE BELANGRIJKSTE REGEL (De deur naar de webhook)
+# DEZE REGEL MOET EXACT ZO ZIJN:
 @app.route('/webhook', methods=['POST', 'GET'])
 def webhook():
     try:
-        # We proberen de data van MetaTrader te lezen
         data = request.get_json(force=True)
-        symbol = data.get('symbol', 'MOGWAI')
+        symbol = data.get('symbol', 'TEST')
         action = data.get('action', 'LIVE')
     except:
-        symbol = "TEST"
-        action = "RESTART"
+        symbol = "MOGWAI"
+        action = "SYNC"
 
     msg = f"🚀 MOGWAI ALERTE\nSymbool: {symbol}\nStatus: {action}"
     
-    # De link die je browser succesvol testte
-    url = f"https://api.telegram.org{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={msg}"
-    
-    # Verstuur naar Telegram
+    # De link die in je browser werkte
+    url = f"https://telegram.org{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={msg}"
     requests.get(url)
     
     return "OK", 200
 
 if __name__ == "__main__":
-    # Render vereist poort 10000 of de PORT variabele
+    # Render gebruikt poort 10000
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
