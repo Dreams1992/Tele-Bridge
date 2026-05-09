@@ -12,7 +12,7 @@ CHAT_ID = "6644788112"
 client = OpenAI(api_key="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")
 
 def send_telegram(msg):
-    url = f"https://api.telegram.org{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={msg}"
+    url = f"https://api.telegram.org/{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={msg}"
     requests.get(url)
 
 @app.route('/webhook', methods=['POST', 'GET'])
