@@ -8,28 +8,26 @@ app = Flask(__name__)
 TOKEN = "8779369461:AAHbUNmOoWReG8LS8rF7TSWt6mn1fNrZYLk"
 CHAT_ID = "6644788112"
 
-@app.route('/webhook', methods=['POST'])
+@app.route('/webhook', methods=['POST', 'GET'])
 def webhook():
+    # We vangen de data op van MetaTrader
     try:
         data = request.get_json(force=True)
-        symbol = data.get('symbol', 'TEST')
+        symbol = data.get('symbol', 'MOGWAI')
         action = data.get('action', 'LIVE')
-        msg = f"🚀 MOGWAI TEST\nSymbool: {symbol}\nActie: {action}"
-        
-        # We bouwen de URL exact op
-        url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-        params = {"chat_id": CHAT_ID, "text": msg}
-        
-        # Verstuur en vang het resultaat op
-        print(f"📡 Poging om bericht te sturen voor {symbol}...")
-        r = requests.get(url, params=params, timeout=10)
-        
-        print(f"📊 Telegram antwoord: {r.status_code} - {r.text}")
-        
-        return "OK", 200
-    except Exception as e:
-        print(f"❌ KRITIEKE FOUT: {str(e)}")
-        return "Error", 500
+    except:
+        symbol = "TEST"
+        action = "CONNECTION"
+
+    msg = f"🚀 MOGWAI ALERTE\nSymbool: {symbol}\nStatus: {action}"
+    
+    # De directe URL die we in de browser hebben getest
+    url = f"https://telegram.org{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={msg}"
+    
+    # Verstuur naar Telegram
+    requests.get(url)
+    
+    return "OK", 200
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
