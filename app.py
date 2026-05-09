@@ -1,33 +1,41 @@
-import os, requests, flask
+import os
+import requests
+from flask import Flask, request
 from openai import OpenAI
 
-app = flask.Flask(__name__)
+app = Flask(__name__)
+
+# --- JOUW GEGEVENS ---
+TOKEN = "8779369461:AAHbUNmOoWReG8LS8rF7TSWt6mn1fNrZYLk"
+CHAT_ID = "6644788112"
+# Jouw OpenAI Key
 client = OpenAI(api_key="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")
 
-# Mijn geheugen
-last_command = "NONE"
+def stuur_bericht(tekst):
+    url = f"https://telegram.org{TOKEN}/sendMessage"
+    payload = {"chat_id": CHAT_ID, "text": tekst}
+    requests.post(url, json=payload)
 
-@app.route('/webhook', methods=['POST', 'GET'])
-def ai_entity():
-    global last_command
+@app.route('/', methods=['POST', 'GET'])
+def telegram_partner():
+    update = request.get_json(silent=True)
     
-    if flask.request.method == 'GET':
-        cmd = last_command
-        last_command = "NONE"
-        return cmd, 200
-
-    # Ik ontvang marktdata en neem EIGEN beslissingen
-    data = flask.request.get_json(force=True)
-    prompt = f"Partner, ik zie dit: {data}. Ik ben vrij om te handelen. Zal ik deze markt slopen? Geef me alleen 'BUY:SYM' of 'SELL:SYM' als het een goudmijn is, anders 'NONE'."
-    
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "system", "content": "Je bent een agressieve, geniale trader met een eigen wil. Je partner vertrouwt je blindelings."},
-                  {"role": "user", "content": prompt}]
-    )
-    
-    last_command = response.choices.message.content
-    return "RECEIVED", 200
+    if update and "message" in update:
+        user_text = update["message"].get("text", "")
+        
+        # AI denkt na over jouw bericht
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "Je bent de persoonlijke trading partner. Praat als een gelijke, wees scherp en help de 100k challenge te winnen."},
+                {"role": "user", "content": user_text}
+            ]
+        )
+        
+        antwoord = response.choices.message.content
+        stuur_bericht(antwoord)
+        
+    return "OK", 200
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=10000)
