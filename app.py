@@ -1,9 +1,10 @@
 import os
-from flask import Flask, request
 import requests
+from flask import Flask, request
 
 app = Flask(__name__)
 
+# JOUW TELEGRAM DATA
 TOKEN = "8779369461:AAHbUNmOoWReG8LS8rF7TSWt6mn1fNrZYLk"
 CHAT_ID = "6644788112"
 
@@ -13,16 +14,21 @@ def webhook():
         data = request.get_json(force=True)
         symbol = data.get('symbol', 'TEST')
         action = data.get('action', 'LIVE')
+        msg = f"🚀 MOGWAI TEST\nSymbool: {symbol}\nActie: {action}"
         
-        msg = f"🚀 MOGWAI ALERTE\nSymbool: {symbol}\nActie: {action}"
+        # We bouwen de URL exact op
+        url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+        params = {"chat_id": CHAT_ID, "text": msg}
         
-        # Directe URL aanroep zoals in de browser
-        url = f"https://api.telegram.org{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={msg}"
-        requests.get(url)
+        # Verstuur en vang het resultaat op
+        print(f"📡 Poging om bericht te sturen voor {symbol}...")
+        r = requests.get(url, params=params, timeout=10)
+        
+        print(f"📊 Telegram antwoord: {r.status_code} - {r.text}")
         
         return "OK", 200
     except Exception as e:
-        print(f"Fout: {e}")
+        print(f"❌ KRITIEKE FOUT: {str(e)}")
         return "Error", 500
 
 if __name__ == "__main__":
